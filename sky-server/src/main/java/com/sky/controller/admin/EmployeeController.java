@@ -1,20 +1,28 @@
 package com.sky.controller.admin;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.sky.constant.JwtClaimsConstant;
+import com.sky.constant.PasswordConstant;
+import com.sky.constant.StatusConstant;
+import com.sky.context.BaseContext;
+import com.sky.dto.EmployeeDTO;
 import com.sky.dto.EmployeeLoginDTO;
+import com.sky.dto.EmployeePageQueryDTO;
 import com.sky.entity.Employee;
 import com.sky.properties.JwtProperties;
+import com.sky.result.PageResult;
 import com.sky.result.Result;
 import com.sky.service.EmployeeService;
 import com.sky.utils.JwtUtil;
 import com.sky.vo.EmployeeLoginVO;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.util.DigestUtils;
+import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -71,4 +79,92 @@ public class EmployeeController {
         return Result.success();
     }
 
+
+    /**
+     * 新增员工
+     * @param employeeDTO
+     * @return
+     */
+    @PostMapping
+    @ApiOperation("新增员工")
+    public Result save(@RequestBody EmployeeDTO employeeDTO){
+        log.info("新增员工: {}",employeeDTO);
+        Employee employee = new Employee();
+
+        //对象拷贝属性
+        BeanUtils.copyProperties(employeeDTO , employee);
+
+        //设置账号状态
+        employee.setStatus(StatusConstant.ENABLE);
+
+        //设置密码，默认密码123456
+        employee.setPassword(DigestUtils.md5DigestAsHex(PasswordConstant.DEFAULT_PASSWORD.getBytes()));
+
+        //设置当前记录的创建时间和修改时间
+        employee.setCreateTime(LocalDateTime.now());
+        employee.setUpdateTime(LocalDateTime.now());
+
+
+        //设置当前记录创建人id和修改人id
+        employee.setCreateUser(BaseContext.getCurrentId());
+        employee.setUpdateUser(BaseContext.getCurrentId());
+
+        employeeService.save(employee);
+        return Result.success();
+    }
+
+    @GetMapping("/page")
+    @ApiOperation("员工分页查询")
+    public Result<PageResult> page(EmployeePageQueryDTO employeePageQueryDTO){
+
+        log.info("员工分页查询，参数为：{}",employeePageQueryDTO);
+        Integer currentpage = employeePageQueryDTO.getPage();
+        Integer pagesize = employeePageQueryDTO.getPageSize();
+        Page<Employee> page = new Page<>(currentpage,pagesize);
+        employeeService.page(page);
+        PageResult pageResult = new PageResult(
+                page.getTotal(),
+                page.getRecords()
+        );
+        return Result.success(pageResult);
+    }
+
+    @PostMapping("/status/{status}")
+    @ApiOperation("启用禁用员工账号")
+    public Result startOrStop(@PathVariable Integer status,Long id){
+        log.info("启用禁用员工账号：{}，{}" ,status,id);
+        Employee employee = employeeService.getById(id);
+        employee.setStatus(status);
+
+        employeeService.updateById(employee);
+
+        return Result.success();
+    }
+
+    @GetMapping("/{id}")
+    @ApiOperation("根据id查询员工信息")
+    public Result<Employee> getById(@PathVariable Long id){
+        Employee employee = employeeService.getById(id);
+        return Result.success(employee);
+    }
+
+    @PutMapping
+    @ApiOperation("编辑员工信息")
+    public Result update(@RequestBody EmployeeDTO employeeDTO){
+        log.info("编辑员工信息：{}",employeeDTO);
+        Employee employee = new Employee();
+
+        //对象拷贝属性
+        BeanUtils.copyProperties(employeeDTO , employee);
+
+        //设置当前记录的修改时间
+        employee.setUpdateTime(LocalDateTime.now());
+
+        //设置当前修改人id
+        employee.setUpdateUser(BaseContext.getCurrentId());
+
+        employeeService.updateById(employee);
+        return Result.success();
+
+    }
 }
