@@ -36,14 +36,7 @@ public class CategoryController {
 
         //设置默认状态为禁用
         category.setStatus(StatusConstant.DISABLE);
-        //设置当前记录的创建时间和修改时间
-        category.setCreateTime(LocalDateTime.now());
-        category.setUpdateTime(LocalDateTime.now());
 
-
-        //设置当前记录创建人id和修改人id
-        category.setCreateUser(BaseContext.getCurrentId());
-        category.setUpdateUser(BaseContext.getCurrentId());
         categoryService.save(category);
         return Result.success();
     }
@@ -69,8 +62,7 @@ public class CategoryController {
     public Result<String> update(@RequestBody CategoryDTO categoryDTO){
         Category category = new Category();
         BeanUtils.copyProperties(categoryDTO,category);
-        category.setUpdateTime(LocalDateTime.now());
-        category.setUpdateUser(BaseContext.getCurrentId());
+
         categoryService.updateById(category);
         return Result.success();
     }

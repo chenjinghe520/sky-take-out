@@ -100,15 +100,6 @@ public class EmployeeController {
         //设置密码，默认密码123456
         employee.setPassword(DigestUtils.md5DigestAsHex(PasswordConstant.DEFAULT_PASSWORD.getBytes()));
 
-        //设置当前记录的创建时间和修改时间
-        employee.setCreateTime(LocalDateTime.now());
-        employee.setUpdateTime(LocalDateTime.now());
-
-
-        //设置当前记录创建人id和修改人id
-        employee.setCreateUser(BaseContext.getCurrentId());
-        employee.setUpdateUser(BaseContext.getCurrentId());
-
         employeeService.save(employee);
         return Result.success();
     }
@@ -157,11 +148,6 @@ public class EmployeeController {
         //对象拷贝属性
         BeanUtils.copyProperties(employeeDTO , employee);
 
-        //设置当前记录的修改时间
-        employee.setUpdateTime(LocalDateTime.now());
-
-        //设置当前修改人id
-        employee.setUpdateUser(BaseContext.getCurrentId());
 
         employeeService.updateById(employee);
         return Result.success();

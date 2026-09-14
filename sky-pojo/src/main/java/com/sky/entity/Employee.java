@@ -1,5 +1,7 @@
 package com.sky.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -34,13 +36,21 @@ public class Employee implements Serializable {
     private Integer status;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @TableField(fill = FieldFill.INSERT)
+    //创建时间
     private LocalDateTime createTime;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    //更新时间
     private LocalDateTime updateTime;
 
+    @TableField(fill = FieldFill.INSERT)
+    //创建人
     private Long createUser;
 
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    //修改人
     private Long updateUser;
 
 }
