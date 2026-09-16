@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.web.SortArgumentResolver;
 import org.springframework.stereotype.Service;
 
+import javax.naming.Name;
 import java.util.Collections;
 
 @Service
@@ -43,7 +44,7 @@ public class CategoryServiceImpl
         Integer currentpage = categoryPageQueryDTO.getPage();
         Integer pagesize = categoryPageQueryDTO.getPageSize();
         Integer type = categoryPageQueryDTO.getType();
-
+        String name = categoryPageQueryDTO.getName();
         //分页的页数和当前属于第几页
         Page<Category> page = new Page<>(currentpage, pagesize);
 
@@ -51,6 +52,7 @@ public class CategoryServiceImpl
         LambdaQueryWrapper<Category> wrapper = new LambdaQueryWrapper<>();
 
         wrapper.eq(type != null,Category::getType,type)
+                .eq(name != null,Category::getName, name)
                 .orderByAsc(Category::getSort);
 
         categoryMapper.selectPage(page,wrapper);

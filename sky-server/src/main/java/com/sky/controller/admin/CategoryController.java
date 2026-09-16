@@ -10,6 +10,7 @@ import com.sky.entity.Category;
 import com.sky.result.PageResult;
 import com.sky.result.Result;
 import com.sky.service.CategoryService;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -21,6 +22,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/admin/category")
+@Api(tags = "分类接口")
 @Slf4j
 public class CategoryController {
 
@@ -77,11 +79,12 @@ public class CategoryController {
         return Result.success();
     }
 
-    @PutMapping("/list")
+    @GetMapping("/list")
     @ApiOperation("根据类型查询")
     public Result<List<Category>> list(Integer type){
         LambdaQueryWrapper<Category> wrapper = new LambdaQueryWrapper<>();
-        wrapper.orderByAsc(Category::getSort)
+        wrapper.eq(type != null, Category::getType, type)
+                .orderByAsc(Category::getSort)
                 .orderByDesc(Category::getCreateTime);
         List<Category> list = categoryService.list(wrapper);
         return Result.success(list);
